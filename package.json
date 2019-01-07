@@ -12,6 +12,7 @@
   "dependencies": {
     "bigchaindb-driver": "^4.1.0",
     "bip39": "^2.5.0",
-    "dotenv": "^6.2.0"
+    "dotenv": "^6.2.0",
+    "localenvify": "^1.0.1"
   }
 }
