@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.1/semantic.min.css">
+    <link rel="stylesheet" type="text/css" href="css/ftf.css">
+
+    <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js" integrity="sha384-SlE991lGASHoBfWbelyBPLsUlwY1GwNDJo3jSJO04KZ33K2bwfV9YBauFfnzvynJ" crossorigin="anonymous"></script>
+
+    <title>FarmToFork</title>
+  </head>
+
+  <body>
+
+    <div id="ftf-container">
+
+      <!-- This is where our content will be inserted -->
+
+      <div class="ftf-header">
+        <h1>🍖 Farm to Fork</h1>
+        <div class="ftf-button ftf-primary">{{farmToFork.currentIdentity.publicKey}}</div>
+      </div>
+
+      <!-- Page container -->
+      <div class="ftf-page-container">
+
+        <!-- Menu -->
+        <div class="ftf-menu">
+
+          <div class="ftf-menu-item" v-on:click="menuClicked('identity')">
+            <i class="fas fa-user"></i>
+            <div class="ftf-menu-item-link">Identity</div>
+          </div>
+
+          <hr>
+
+          <div class="ftf-menu-item" v-on:click="menuClicked('assets')">
+            <i class="fas fa-industry"></i>
+            <div class="ftf-menu-item-link">Your assets</div>
+          </div>
+
+          <div class="ftf-menu-item" v-on:click="menuClicked('all-assets')">
+            <i class="fas fa-utensils"></i>
+            <div class="ftf-menu-item-link">All assets</div>
+          </div>
+
+        </div>
+
+        <!-- Content container -->
+        <div class="ftf-content-container">
+
+
+          <!-- Identity pane -->
+          <div v-if="isActive('identity')" class="ftf-content-pane">
+
+            <div class="ftf-box">
+              <h2>Your Identity</h2>
+              <hr>
+              <p>In this proof of concept, your identity simply is your keypair.</p>
+            </div>
+
+            <div class="ftf-box ftf-full ftf-wide">
+              <h2>Generating an identity</h2>
+              <hr>
+              <p>Enter a seed below and press the 'generate' button to generate your new identity.</p>
+              <div class="ftf-control">
+                <input v-model="identitySeedInput" type="password">
+                <div class="ftf-input-button" v-on:click="identityButtonClicked()">generate</div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Asset pane -->
+          <div v-if="isActive('assets')" class="ftf-content-pane">
+
+            <div class="ftf-box">
+              <h2>Assets | Food-items</h2>
+              <hr>
+              <p>In this proof of concept, the assets in our transactions are food-items that are currently in circulation in the market.</p>
+            </div>
+
+            <div class="ftf-box ftf-full ftf-wide">
+              <h2>Create a new food-item</h2>
+              <p>Enter a description for the food-item you want to introduce to the market:</p>
+              <div class="ftf-control">
+                <input v-model="assetInput" type="text">
+                <div class="ftf-input-button" v-on:click="assetButtonClicked()">create</div>
+              </div>
+              <br>
+              <h2>Your food-items</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>description</th>
+                    <th>transaction ID</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="asset in assets" v-on:click="transactionClicked(asset.id, true)">
+                    <td>{{asset.asset.data.item}}</td>
+                    <td>{{asset.id}}</td>
+                  </tr>
+                  <tr v-if="assets.size == 0">
+                    <td colspan="2" style="text-align: left">No food-items.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+
+          <!-- Transactions pane -->
+          <div v-if="isActive('transactions')" class="ftf-content-pane">
+
+            <div class="ftf-box ftf-wide">
+              <h2>Transaction chain</h2>
+              <hr>
+              <p>Each asset on the BigchainDB has a list of transactions that have been performed upon it.</p>
+            </div>
+
+            <div class="ftf-box ftf-wide ftf-box-no-margin" v-if="myAssets">
+              <h2>Perform action on food-item: {{activeTransaction.asset.data.item}}</h2>
+              <p>Enter an action to perform:</p>
+              <div class="ftf-control">
+                <input type="text" v-model="actionInput">
+                <div class="ftf-input-button" v-on:click="actionButtonClicked()">process</div>
+              </div>
+
+              <h2>OR</h2>
+
+              <h2>Transfer the asset to another business</h2>
+              <p>This action is the equivalent of selling the product to another firm that will in turn process it for their purpose.</p>
+              <p>The receiver enters their password:</p>
+              <div class="ftf-control">
+                <input type="password" v-model="otherFirmInput">
+                <div class="ftf-input-button" v-on:click="otherFirmButtonClicked()">transfer</div>
+              </div>
+            </div>
+
+            <span class="ftf-full" v-for="transaction in transactionsForAsset.slice().reverse()">
+              <div class="ftf-arrow ftf-full"></div>
+              <div class="ftf-box ftf-wide ftf-box-no-margin">
+                <h2>{{transaction.metadata.action}}</h2>
+                <p>{{new Date(transaction.metadata.date).toLocaleString()}}</p>
+              </div>
+            </span>
+
+          </div>
+
+          <!-- All assets pane -->
+          <div v-if="isActive('all-assets')" class="ftf-content-pane">
+
+            <div class="ftf-box">
+              <h2>All assets | food-items</h2>
+              <hr>
+              <p>All data on a bigchaindb network (that you participate to) is visible to you, even the assets that never belonged to you. This is what provides the transparancy.</p>
+            </div>
+
+            <div class="ftf-box ftf-full">
+
+              <table>
+                <thead>
+                  <tr>
+                    <th>Description</th>
+                    <th>transaction ID</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="asset of allAssets" v-on:click="transactionClicked(asset.id, false)">
+                    <td>{{asset.data.item}}</td>
+                    <td>{{asset.id}}</td>
+                  </tr>
+                </tbody>
+              </table>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Vue.js -->
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+
+    <!-- Our bundled code -->
+    <script src="js/bundle.js"></script>
+
+    <!-- The code linking our webapp to the code we wrote -->
+    <script src="js/ftf-web.js"></script>
+
+  </body>
+
+</html>
