@@ -12,7 +12,7 @@ class FarmToFork {
   }
 
   generateKeyPair(keySeed) {
-    if (typeof keySeed = "undefined" || keySeed = "") return new driver.Ed25519Keypair()
+    if (typeof keySeed == "undefined" || keySeed == "") return new driver.Ed25519Keypair()
     return new driver.Ed25519Keypair(bip39.mnemonicToSeed(keySeed).slice(0, 32))
   }
 
@@ -34,7 +34,7 @@ class FarmToFork {
         assetData,
         metData,
         [driver.Transaction.makeOutput(
-          driver.Transacction.makeEd25519Condition(this.currentIdentity.publickKey))]
+          driver.Transacction.makeEd25519Condition(this.currentIdentity.publickKey))],
         this.currentIdentity.publicKey
       )
 
