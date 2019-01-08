@@ -1,10 +1,11 @@
 {
   "name": "bigchain-db",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A POC library the life-cycle of a food-item in the food-industry.",
+  "main": "js/FarmToFork.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "bundle": "browserify js/FarmToFork.js -t localenvify -s ftf_module -o js/bundle.js"
   },
   "keywords": [],
   "author": "",
